@@ -1,55 +1,7 @@
+# day/week to calculate for
 day, week = 0,1
-# zero indexed
-# Calculator / help tool for 5/3/1 program
-# percentages are a percentage of your training max
-# Training max = theorhetical one rep max
-
-# Week 1:
-# 1x5 @ 65%
-# 1x5 @ 75%
-# 1x5+ @ 85%
-
-# Week 2:
-# 1x3 @ 70%
-# 1x3 @ 80%
-# 1x3+ @ 90%
-
-# Week 3:
-# 1x5 @ 75%
-# 1x3 @ 85%
-# 1x1+ @ 95%
-
-# FSL
-# -> same percentage as first set for that day
-
-# Warm up
-# box jumps OR broad jumps OR medicine ball throws
-
-# main lift warmup 
-# 1x5 @ 40%
-# 1x5 @ 50%
-# 1x3 @ 60%
-
-# Program
-
-# Day 1
-# squats 5/3/1 then 5x5 FSL
-# Bench 5/3/1 then 5x5 FSL
-# Assistance work
-
-# Day 2
-# DL 5/3/1 then 5x5 FSL
-# OHP 5/3/1 then 5x5 FSL
-# Assistance work
-
-# Day 3
-# Bench 5/3/1 then 5x5 FSL
-# squats 5/3/1 then 5x5 FSL
-
-# At the end of each 3 week cycle, 
-# add 5 lbs to Bench & OHP tm
-# add 10 lbs to Squat & DL
-
+weights = [45,25,10,5,2.5]
+bar_weight = 45
 # training max
 tm = {
 	'Squats':290,
@@ -58,6 +10,7 @@ tm = {
 	'Overhead Press':120,
 }
 
+print('Week %d, Day %d:' % (week, day))
 week_reps = [
 	['1x5', '1x5', '1x5+', '5x5'],
 	['1x3', '1x3', '1x3+', '5x5'],
@@ -88,7 +41,7 @@ def calculate(day, week):
 		for j in range(4): 
 			s += '\t' + week_reps[week][j] + ' @ '
 			weight = week_multipliers[week][j]*tm[day_lifts[day][i]]
-			s += str(myRound(weight,5)) + ' = ' + splitweight(myRound(weight,5)) + '\n'
+			s += str(myRound(weight,weights[-1]*2)) + ' = ' + splitweight(myRound(weight,weights[-1]*2)) + '\n'
 		s += '\n'
 	s+='\nAssistance Work:\n'
 	s+= '\n'.join(['\t50-100x '+i for i in assistance_work])
@@ -96,11 +49,10 @@ def calculate(day, week):
 	return s
 
 def splitweight(weight):
-	outstr = '45 + 2*('
-	weight = (weight - 45)/2
+	outstr = '%d + 2*(' % bar_weight
+	weight = (weight - bar_weight)/2
 	while weight > 0:
 		i = 0
-		weights = [45,25,10,5,2.5]
 		while weight < weights[i]:
 			i += 1
 		outstr += '%.1f + ' % weights[i]
