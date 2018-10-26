@@ -1,16 +1,19 @@
 # day/week to calculate for
-day, week = 0,1
+day, week = 0,0
 weights = [45,25,10,5,2.5]
 bar_weight = 45
 # training max
 tm = {
 	'Squats':290,
-	'Bench Press':160,
-	'Deadlift':310,
-	'Overhead Press':120,
+	'Bench Press':165,
+	'Deadlift':320,
+	'Overhead Press':125,
 }
 
 print('Week %d, Day %d:' % (week, day))
+warmup_reps = ['1x5', '1x5', '1x3']
+warmup_multipliers = [0.4, 0.5, 0.6]
+
 week_reps = [
 	['1x5', '1x5', '1x5+', '5x5'],
 	['1x3', '1x3', '1x3+', '5x5'],
@@ -36,8 +39,16 @@ def myRound(num, base):
 
 def calculate(day, week):
 	s = ''
+	s += '\nWarmup:\n\t3x5 Box Jumps\n'
+
 	for i in range(2):
 		s += day_lifts[day][i] + ':\n'
+		s += '\t(Warmup)\n'
+		for j in range(len(warmup_reps)):
+			s += '\t' + warmup_reps[j] + ' @ '
+			weight = warmup_multipliers[j]*tm[day_lifts[day][i]]
+			s += str(myRound(weight,weights[-1]*2)) + ' = ' + splitweight(myRound(weight,weights[-1]*2)) + '\n'
+		s += '\t(Lifts)\n'
 		for j in range(4): 
 			s += '\t' + week_reps[week][j] + ' @ '
 			weight = week_multipliers[week][j]*tm[day_lifts[day][i]]
