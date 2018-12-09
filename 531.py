@@ -1,5 +1,5 @@
 # day/week to calculate for
-day, week = 1,0
+day, week = 0,1
 weights = [45,25,10,5,2.5]
 bar_weight = 45
 # training max
