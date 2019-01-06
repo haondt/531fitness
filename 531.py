@@ -1,13 +1,13 @@
 # day/week to calculate for
-day, week = 1,0
+day, week = 1,2
 weights = [45,25,10,5,2.5]
 bar_weight = 45
 # training max
 tm = {
-	'Squats':200,
-	'Bench Press':170,
-	'Deadlift':325,
-	'Overhead Press':125,
+	'Squats':210,
+	'Bench Press':175,
+	'Deadlift':335,
+	'Overhead Press':130,
 }
 
 print('Week %d, Day %d:' % (week+1, day+1))
