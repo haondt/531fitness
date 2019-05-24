@@ -15,6 +15,9 @@ To be implemented:
   * could be converted to a nice little android app
 
 # GZCLP Sheets
+Modification of gzclp.py that uses Google Sheets as a database for holding weight/lift/rep configurations.
+Also set up as a much cleaner OO style program.
+
 * Requires the root directory to contain a folder called 'secret'
 * In that folder should be a file called credentials.json, generated from here: https://developers.google.com/sheets/api/quickstart/python
 * Folder should also contain a file called sheetId.txt, containing the sheet ID of the desired spreadsheet
