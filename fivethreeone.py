@@ -1,16 +1,15 @@
 # day/week to calculate for
-day, week = 0,0
+day, week = 1,2
 weights = [45,25,10,5,2.5]
 bar_weight = 45
 # training max
 tm = {
-	'Squats':210,
-	'Bench Press':175,
-	'Deadlift':335,
-	'Overhead Press':130,
+	'Squats':220,
+	'Bench Press':180,
+	'Deadlift':345,
+	'Overhead Press':135,
 }
 
-print('Week %d, Day %d:' % (week+1, day+1))
 warmup_reps = ['1x5', '1x5', '1x3']
 warmup_multipliers = [0.4, 0.5, 0.6]
 
@@ -60,14 +59,19 @@ def calculate(day, week):
 	return s
 
 def splitweight(weight):
-	outstr = '%d + 2*(' % bar_weight
-	weight = (weight - bar_weight)/2
-	while weight > 0:
-		i = 0
-		while weight < weights[i]:
-			i += 1
-		outstr += '%.1f + ' % weights[i]
-		weight -= weights[i]
-	return outstr[:-3] + ')'
+	if weight > bar_weight:
+		outstr = '%d + 2*(' % bar_weight
+		weight = (weight - bar_weight)/2
+		while weight > 0:
+			i = 0
+			while weight < weights[i]:
+				i += 1
+			outstr += '%.1f + ' % weights[i]
+			weight -= weights[i]
+		return outstr[:-3] + ')'
+	else:
+		return str(weight)
 
-print(calculate(day,week))
+if __name__ == '__main__':
+	print('Week %d, Day %d:' % (week+1, day+1))
+	print(calculate(day,week))

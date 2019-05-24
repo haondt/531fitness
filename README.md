@@ -13,3 +13,11 @@ To be implemented:
   * a config file could be used in place of specific values in the code
   * other workout programs could be added, such as Phraks Greyskull LP
   * could be converted to a nice little android app
+
+# GZCLP Sheets
+* Requires the root directory to contain a folder called 'secret'
+* In that folder should be a file called credentials.json, generated from here: https://developers.google.com/sheets/api/quickstart/python
+* Folder should also contain a file called sheetId.txt, containing the sheet ID of the desired spreadsheet
+  * Sheet Id can be located by url: https://docs.google.com/spreadsheets/d/[sheetId]/
+  * Sheet must contain a sheet named "Parameters" with the appropriate formate
+* Running script will generate token.pickle, after prompting the user to authenticate in a browser.
