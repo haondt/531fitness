@@ -88,25 +88,6 @@ def workout(day):
 		print('\tWorking set:')
 		print('\t\t%s' % formatweight(main_reps, main_weight))
 		
-	'''
-	p1 = []
-	p2 = []
-	p3 = []
-	for i in range(len(lifts)):
-		tier = i
-		lift = lifts[tier]
-		stage = stages[lift][tier]
-		_reps = reps[stage][tier]
-		weight = weights[lift][tier]
-		p1.append(lift+":")
-		p2.append(" "+ str(_reps) + " @" + str(weight) +": ")
-		p3.append(splitweight(myRound(weight, plates[-1]*2))+ " (" + rests[tier] + " rest)")
-	
-	for i in range(len(p1)):
-		for p in [p1, p2]:
-			print(p[i].rjust(len(max(p, key=lambda x: len(x)))), end='')
-		print(p3[i])
-	'''
 def main():
 	print('Day', str(day+1) + ':')
 	workout(day)

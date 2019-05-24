@@ -1,75 +1,3 @@
-import pickle
-import os.path
-from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-
-class SheetsController:
-	sheet = None
-	sheetId = None
-
-	def __init__(self, tokenPath, credentialsPath, sheetId):
-		# if modifying these scopes, delete the file token.pickle
-		SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-		
-		creds = None
-		# Retreive user's access and refresh tokens 
-		if os.path.exists(tokenPath):
-			with open(tokenPath, 'rb') as token:
-				creds = pickle.load(token)
-		
-		# Create token file by letting the user log in
-		if not creds or not creds.valid:
-			if creds and creds.expired and creds.refresh_token:
-				creds.refresh(Request())
-			else:
-				flow = InstalledAppFlow.from_client_secrets_file(credentialsPath, SCOPES)
-				creds = flow.run_local_server()
-			# Save the credentials for the next run
-			with open(tokenPath, 'wb') as token:
-				pickle.dump(creds, token)
-
-		service = build('sheets', 'v4', credentials=creds)
-		self.sheet = service.spreadsheets()	
-		self.sheetId = sheetId
-	
-	def get(self, sheetRange="Parameters"):
-		result = self.sheet.values().get(spreadsheetId=self.sheetId, range=sheetRange).execute()
-		return result.get('values', [])
-	
-	# Transforms the result into a form parseable to Gzclp
-	def transform(self, data):
-		titles = data[0]
-		iterator = 1
-		newdata = {'Lifts':{}, 'Day':0, 'Plates':[], 'Bar Weight':0.0}
-		while titles[iterator] is not "":
-			for row in data[1:]:
-				if row[0] not in newdata['Lifts']:
-					newdata['Lifts'][row[0]] = {}
-				if len(row) >  iterator:
-					newdata['Lifts'][row[0]][titles[iterator]] = row[iterator]
-				else:
-					newdata['Lifts'][row[0]][titles[iterator]] = ''
-			iterator += 1
-		
-		iterator += 1
-		while iterator < len(titles):
-			title = titles[iterator]
-			print(title)
-			if title in newdata:
-				if type(newdata[title]) == int:
-					newdata[title] = int(data[1][iterator])
-				elif type(newdata[title]) == float:
-					newdata[title] = float(data[1][iterator])
-				elif type(newdata[title]) == list:
-					row = 1
-					while len(data[row]) >= iterator:
-						newdata[title].append(float(data[row][iterator]))
-						row += 1
-			iterator += 1
-
-		return newdata
-
 class Gzclp:
 	day = 0
 	plates = []
@@ -78,9 +6,11 @@ class Gzclp:
 	warmup_multipliers = [0.4, 0.5, 0.6]
 	
 	# day_lifts[day][tier]
+	# day and tier are both strings
 	dayLifts = [{} for i in range(4)]
 	
 	# reps[stage][tier]
+	# stage and tier are both ints
 	reps = [
 		["5x3", "3x10", "3x15+"],
 		["6x2", "3x8", "n/a"],
@@ -89,11 +19,13 @@ class Gzclp:
 	
 	# stages[lift][tier]
 	# 0-indexed
+	# lift is str, tier is int
 	stages = {}
 
 	# weights[lift][tier]
 	# 0-indexed
 	# 3 RM
+	# lift is str, tier is int
 	weights = {}
 
 	# rests[tier]
@@ -107,16 +39,19 @@ class Gzclp:
 		self.plates = plates
 		self.bar_weight = bar_weight
 
+	# Get the (0-indexed) day
 	def getDay(self):
 		return self.day
 	
+	# Change the (0-indexed) day
 	def setDay(self, day):
-		if day > 4 or day < 0:
+		if day >= 4 or day < 0:
 			return False
 		else:
 			self.day = day
 			return True
 
+	# Returns helptext describing the GZCLP progression
 	def helptext(self):
 		return """
 		How to test for new 5RM: 
@@ -188,31 +123,40 @@ class Gzclp:
 		
 		# Add to weights (make copy)
 		self.weights[liftName] = weights[:]
-	
-		
-def main():
 
-	# Set up configuration file paths
-	sheetId = ""
-	with open('secret/sheetId.txt') as sheet:
-		sheetId = sheet.read().strip()
-	tokenPath = 'secret/token.pickle'
-	credPath = 'secret/credentials.json'
+	# Get the workout for the given day in a human-readable string
+	def getWorkoutString(self, day):
+		outstr = ""
+		lifts = self.dayLifts[day]
+		# Go through each tier
+		for tierInt in range(3):
+			tierStr = ['T1','T2','T3'][tierInt]
+			# Check if lifts for that tier exist
+			if tierStr in lifts:
+				for lift in lifts[tierStr]:
+					# Get stage of lift
+					stage = self.stages[lift][tierInt]
+					
+					# Get reps and weights for main part of lift
+					main_reps = self.reps[stage][tierInt]
+					main_weight = self.weights[lift][tierInt]
+					
+					# Add label for lift
+					outstr += lift + ":\n"
 
-	# Build sheetsController
-	sheet = SheetsController(tokenPath, credPath, sheetId)
-	plates = [45,35,25,10,5,2.5]
-	bar_weight = 45
-	gzclp = Gzclp(plates, bar_weight)
-	values = sheet.get()
-	gzclp.addLift("Squat", [225,185,0],["T1", None, "T2", ""])
-	gzclp.addLift("Bench Press", [25,85,0],["T2", None, "T1", ""])
-	gzclp.addLift("OHP", [25,85,0],["", "T1", "T1", "T3"])
-	print(gzclp.dayLifts)
+					# Only generate warmup for T1 and T2 lifts
+					if tierStr != 'T3':
+						# Add Warmup label
+						outstr += '\tWarmup:\n'
+						for j in range(len(self.warmup_reps)):
+							# Roughly estimate 1rm = 1.25*3rm at T1 and calculate warmup weights as a percentage of that
+							warmup_weights = self.warmup_multipliers[j]*self.weights[lift][0]*1.25
+							# Build format string for warmup
+							outstr += '\t\t%s' % self.formatweight(self.warmup_reps[j], warmup_weights) + '\n'
 
-	if not values:
-		print('No data found.')
-	else:
-		print(sheet.transform(values))
-if __name__ == '__main__':
-	main()
+					# Generate working set
+					outstr += '\tWorkingset:\n'
+					outstr += '\t\t%s' % self.formatweight(main_reps, main_weight) + '\n'
+
+		return outstr
+
