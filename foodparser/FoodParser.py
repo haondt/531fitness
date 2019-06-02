@@ -53,9 +53,12 @@ def main():
 		'Calories / $'
 	]
 
+	# Clear out sheet
+	sheet.clearSheet()
+
 
 	# Fill in headers
-	# sheet.makeHeaders(headers)
+	sheet.makeHeaders(headers)
 
 
 	# Build superstore parser
@@ -63,6 +66,7 @@ def main():
 	ssp = ssParser()
 	
 	caching = True
+	debugging = True
 	data = []
 	
 	for i in range(len(urls)):
@@ -85,12 +89,16 @@ def main():
 					html = pickle.load(cache)
 		else:
 			html = ssp.gethtml(url)
-		try:
+
+		if debugging:
 			data.append(ssp.parse(html,url))
-		except:
-			#print("Error in parsing data (" + url[35:85] + "...)")
-			print("Error in parsing data")
-			print("URL:", url)
+		else:
+			try:
+				data.append(ssp.parse(html,url))
+			except:
+				#print("Error in parsing data (" + url[35:85] + "...)")
+				print("Error in parsing data")
+				print("URL:", url)
 
 	print('Writing to sheets...')
 	

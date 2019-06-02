@@ -2,15 +2,47 @@ import urllib.request
 import re
 import bs4
 from bs4 import BeautifulSoup
+import requests
+from selenium import webdriver
+from selenium.webdriver.common.keys import Keys
 
 class Parser:
 
+	driver = None
+
 	def __init__(self):
-		pass
+		self.driver = webdriver.Firefox(executable_path='./geckodriver')
+		self.driver.get('https://www.realcanadiansuperstore.ca/')
+		button = None
+		while(button == None):
+			try:
+				button = self.driver.find_element_by_xpath('//button[text()="Alberta"]')
+			except:
+				button = None
+		result = None
+		while(result == None):
+			try:
+				button.click()
+				result = True
+			except:
+				result = None
+	
+	def closeWindow(self):
+		self.driver.close()
 	
 	def gethtml(self, url):
-		fp = urllib.request.urlopen(url)
-		return fp.read()
+		#r = requests.get(url, allow_redirects=False)
+		#print(r.status_code)
+		#print(r.status_code, r.headers['Location'])
+		#data = r.content
+		#print(r.headers)
+		#return data
+		#fp = urllib.request.urlopen(url)
+		#print(fp.geturl())
+		#return fp.read()
+
+		self.driver.get(url)
+		return self.driver.page_source
 
 	def parse(self, text, url):
 		# Heat up the kitchen
@@ -19,6 +51,7 @@ class Parser:
 
 		# Extract product name
 		name = soup.find('h1',  attrs={'class':'product-name'})
+
 		name = ''.join([i for i in name.contents
 			if type(i) == bs4.element.NavigableString]).strip()
 

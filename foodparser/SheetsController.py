@@ -56,7 +56,11 @@ class SheetsController:
 			body=body
 		).execute()
 
-	#def clearSheet(
+	def clearSheet(self, sheetRange='data'):
+		self.sheet.values().clear(
+			spreadsheetId=self.sheetId,
+			range=sheetRange).execute()
+		
 
 	def insertFoods(self, foods, sheetRange='data'):
 		# Get Columns
@@ -105,6 +109,8 @@ class SheetsController:
 		# function to convert a header title to a letter
 		hl = lambda x: chr(headers.index(x) + ord('A'))
 
+
+		# set of lambda functions for creating formulas
 		formulas = {
 			"$ / unit": lambda x: '=' +
 				hl("Buying Cost")+ x + "/"
@@ -127,6 +133,7 @@ class SheetsController:
 				+ x + ")/" + hl("$ / unit") + x
 		}
 
+		# Generate formulas for each row
 		values  = []
 		for i in range(int(uRows[0]),int(uRows[1])+1):
 			row = []
@@ -137,6 +144,7 @@ class SheetsController:
 					row.append(None)
 			values.append(row)
 		
+		# Create body
 		body = {
 			"range":A1uRows,
 			"values":values,
