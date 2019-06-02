@@ -56,6 +56,8 @@ class SheetsController:
 			body=body
 		).execute()
 
+	#def clearSheet(
+
 	def insertFoods(self, foods, sheetRange='data'):
 		# Get Columns
 		result = self.sheet.values().get(
@@ -126,11 +128,11 @@ class SheetsController:
 		}
 
 		values  = []
-		for i in range(uRows[0],uRows[1]+1):
+		for i in range(int(uRows[0]),int(uRows[1])+1):
 			row = []
 			for col in headers:
 				if col in formulas:
-					row.append(formulas[col](i))
+					row.append(formulas[col](str(i)))
 				else:
 					row.append(None)
 			values.append(row)
