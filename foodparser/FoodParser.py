@@ -39,7 +39,7 @@ def main():
 	data = []
 	
 	for i in range(len(urls)):
-		print('yoinking page and parsing data...(' + str(i+1) + '/'
+		print('yoinking page...(' + str(i+1) + '/'
 			+ str(len(urls)) + ')')
 
 		url = urls[i]
@@ -59,17 +59,33 @@ def main():
 		else:
 			html = ssp.gethtml(url)
 
-		if debugging:
-			data.append(ssp.parse(html,url))
-		else:
-			try:
-				data.append(ssp.parse(html,url))
-			except:
-				#print("Error in parsing data (" + url[35:85] + "...)")
-				print("Error in parsing data")
-				print("URL:", url)
+		data.append((html,url))
 	
 	ssp.closeWindow()
+
+	parsedData = []
+	for i in range(len(data)):
+		print('parsing data...(' + str(i+1) + '/' + str(len(data)) + ')')
+		pair = data[i]
+		parsed = None
+
+		if caching:
+			cachePath = 'cache/'
+			cachePath += hashlib.md5(pair[1].encode()).hexdigest()
+			cachePath += '.parsed.pickle'
+			if not os.path.exists(cachePath):
+				parsed = ssp.parse(pair[0], pair[1])
+				with open(cachePath, 'wb') as cache:
+					pickle.dump(parsed, cache)
+			else:
+				with open(cachePath, 'rb') as cache:
+					parsed = pickle.load(cache)
+		else:
+			parsed = ssp.parse(pair[0], pair[1])
+
+		parsedData.append(parsed)
+
+
 
 	print("Building sheets controller...")
 	# Build sheetsController
@@ -108,7 +124,7 @@ def main():
 
 	print('Writing to sheets...')
 	# Insert items
-	sheet.insertFoods(data)
+	sheet.insertFoods(parsedData)
 
 
 if __name__ == '__main__':
