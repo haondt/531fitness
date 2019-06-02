@@ -11,14 +11,20 @@ class Parser:
 	driver = None
 
 	def __init__(self):
+		print('Building webdriver...')
 		self.driver = webdriver.Firefox(executable_path='./geckodriver')
+		print('Loading superstore homepage...')
 		self.driver.get('https://www.realcanadiansuperstore.ca/')
 		button = None
+
+		print('waiting for button to appear...')
 		while(button == None):
 			try:
 				button = self.driver.find_element_by_xpath('//button[text()="Alberta"]')
 			except:
 				button = None
+
+		print('clicking button...')
 		result = None
 		while(result == None):
 			try:
@@ -44,6 +50,20 @@ class Parser:
 		self.driver.get(url)
 		return self.driver.page_source
 
+	def stdUnit(self, value, unit):
+		unit = unit.lower()
+		if unit == 'mg':
+			unit = 'g'
+			value = value / 1000
+		elif unit == 'l':
+			unit = 'ml'
+			value = value * 1000
+		elif unit == 'kg':
+			unit = 'g'
+			value = value * 1000
+
+		return value, unit
+
 	def parse(self, text, url):
 		# Heat up the kitchen
 		soup = BeautifulSoup(text, features='lxml')
@@ -62,16 +82,46 @@ class Parser:
 		qty = qty.text
 
 		# Extract numeric quantity
-		numQty = re.findall('[0-9]+', qty)[0]
-		result['Buying Quantity'] = float(numQty)
+		numQty = re.findall('[0-9\.]+', qty)[0]
 
-		# Extract unit
-		result['Unit'] = re.findall('[A-Za-z]+', qty)[-1]
-		result['alternate unit'] = soup.find('sup', attrs={'class':'reg-price-unit'}).text
+		# Extract quantity
+		# check if quantity is multiplicative
+		if re.match('.*[0-9\.]+x[0-9\.]+.*', qty):
+			# extract numbers
+			nums = qty.split('x')
+			nums = [re.findall('[0-9\.]+', i)[0] for i in nums]
+			nums = [float(i) for i in nums]
+			result['Buying Quantity']  = nums[0]*nums[1]
+
+		else:
+			result['Buying Quantity'] = float(numQty)
+
+
+		result['Unit'] = re.findall('[A-Za-z]+', qty)[-1].lower()
+
+		# standardize result
+		result['Buying Quantity'], result['Unit'] = self.stdUnit(
+			result['Buying Quantity'], result['Unit'])
+
+
+		#result['alternate unit'] = soup.find('sup', attrs={'class':'reg-price-unit'}).text
 
 		# Extract cost
-		cost = soup.find('span', attrs={'class':'reg-price-text'}).text
-		cost = re.search('[0-9\.]+', cost)[0]
+
+		# get pricing model bar
+
+		bar = soup.find('div', attrs={'class':'pricing-module'})
+
+		cost = None
+		for c in ['reg-price-text', 'old-price-text', 'sale-price-text']:
+			try:
+				cost = bar.find('span', attrs={'class':c}).text
+				cost = re.search('[0-9\.]+', cost)[0]
+				break
+			except:
+				pass
+
+		assert(cost != None)
 		result['Buying Cost'] = cost
 
 		# Extract summary data
@@ -95,19 +145,21 @@ class Parser:
 		servingSize = summary[[i for i in summary if 'SIZE' in i.upper()][0]]
 
 		# extract number
-		servingSizeNum = re.findall('[0-9]+', servingSize)[0]
+		servingSizeNum = re.findall('[0-9\.]+', servingSize)[-1]
 		servingSizeNum = float(servingSizeNum)
 		# extract unit
-		servingSizeUnit = re.findall('[A-Za-z]+', servingSize)[-1]
-		result['Serving Quantity'] = servingSizeNum
-		result['serving unit'] = servingSizeUnit
+		servingSizeUnit = re.findall('[A-Za-z]+', servingSize)[-1].lower()
+
+		# standardize unit
+		result['Serving Quantity'], result['Serving Unit'] = self.stdUnit(
+			servingSizeNum, servingSizeUnit)
 
 
 		# find calories per serving
 		# find tag
 		calories = summary[[i for i in summary if 'CALORIES' in i.upper()][0]]
 		# extract value
-		calories = re.findall('[0-9]+', calories)[0]
+		calories = re.findall('[0-9\.]+', calories)[0]
 		calories = float(calories)
 		result['Serving Calories'] = calories
 		
@@ -126,20 +178,28 @@ class Parser:
 			text = (''.join(text)).strip()
 
 			# find nutrition label
-			label = [i for i in Tags if i['class'][0] == 'nutrition-label'][0]
+
+			Tags = [i for i in Tags if 'class' in i.attrs]
+
+			label = [i for i in Tags if i['class'][0] == 'nutrition-label']
+			# Skip items with no nutrition-label tag
+			if len(label) == 0:
+				continue
+			else:
+				label = label[0]
 			label = label.text.strip()
 
 			# find value
-			value = re.findall('[0-9]+', text)[0]
+			value = re.findall('[0-9\.]+', text)[0]
 			value = float(value)
 
 			# find unit
-			unit = re.findall('[A-Za-z]+', text)[-1]
+			unit = re.findall('[A-Za-z]+', text)[-1].lower()
+
+			# standardize unit
+			value, unit = self.stdUnit(value, unit)
 
 			# insert into dict
-			if unit == 'mg':
-				unit = 'g'
-				value = value / 1000
 			nutDict[label] = value
 
 		# Extract only the stuff we care about

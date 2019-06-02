@@ -114,7 +114,7 @@ class SheetsController:
 		formulas = {
 			"$ / unit": lambda x: '=' +
 				hl("Buying Cost")+ x + "/"
-				+ hl("Serving Quantity") + x,
+				+ hl("Buying Quantity") + x,
 			"g Protein / Calorie": lambda x: '=' +
 				hl("Serving Protein") + x + "/" + hl("Serving Calories") + x,
 			"g Protein / $": lambda x: '=' +
