@@ -1,3 +1,4 @@
+import re
 import pickle
 import os.path
 from googleapiclient.discovery import build
@@ -37,8 +38,6 @@ class SheetsController:
 		self.sheetName = sheetName
 
 	def makeHeaders(self, headers, sheetRange='data'):
-		#worksheet = self.sheet.worksheet(self.sheetName)
-
 		# Build request
 		body = {
 			"valueInputOption":"USER_ENTERED",
@@ -57,17 +56,94 @@ class SheetsController:
 			body=body
 		).execute()
 
-			
+	def insertFoods(self, foods, sheetRange='data'):
+		# Get Columns
+		result = self.sheet.values().get(
+			spreadsheetId=self.sheetId,
+			range=sheetRange+'!1:1'
+		).execute()
 		
+		headers = result.get('values',[])[0]
 
-'''
-	
-	def get(self, sheetRange="Parameters"):
-		result = self.sheet.values().get(spreadsheetId=self.sheetId, range=sheetRange).execute()
-		return result.get('values', [])
-	
-	def init_sheet(self, sheetRange="data"):
+		values = []
+		# Match food components to column headers
+		for food in foods:
+			foodrow = []
+			for col in headers:
+				if col in food:
+					foodrow.append(food[col])
+				else:
+					foodrow.append(None)
+			values.append(foodrow)
 
-		for row
-		self.sheet.values().update()
-		'''
+		# Build request
+		body = {
+			"values": values,
+			"majorDimension":"ROWS"
+		}
+
+		# Execute request
+		result = self.sheet.values().append(
+			spreadsheetId=self.sheetId,
+			range=sheetRange+'!A2:A',
+			body=body,
+			valueInputOption="USER_ENTERED"
+		).execute()
+
+
+		# Get updated row range
+		uRows = result["updates"]["updatedRange"]
+		uRows = uRows.split('!')[1].split(':')
+		uRows = (re.findall('[0-9]+', uRows[0])[0],
+			re.findall('[0-9]+', uRows[1])[0])
+		A1uRows = sheetRange + "!A"+  uRows[0] + ":" + chr(ord('A')+len(headers)) + uRows[1]
+
+		# Go back and add formulas
+		# function to convert a header title to a letter
+		hl = lambda x: chr(headers.index(x) + ord('A'))
+
+		formulas = {
+			"$ / unit": lambda x: '=' +
+				hl("Buying Cost")+ x + "/"
+				+ hl("Serving Quantity") + x,
+			"g Protein / Calorie": lambda x: '=' +
+				hl("Serving Protein") + x + "/" + hl("Serving Calories") + x,
+			"g Protein / $": lambda x: '=' +
+				"(" + hl("Serving Protein") + x + "/" + hl("Serving Quantity")
+				+ x + ")/" + hl("$ / unit") + x,
+			"Protein Score": lambda x: '=' +
+				hl("g Protein / Calorie") + x + "*" + hl("g Protein / $") + x,
+			"g Carbs / $": lambda x: '=' +
+				"(" + hl("Serving Carbs") + x + "/" + hl("Serving Quantity")
+				+ x + ")/" + hl("$ / unit") + x,
+			"g Fat / $": lambda x: '=' +
+				"(" + hl("Serving Fat") + x + "/" + hl("Serving Quantity")
+				+ x + ")/" + hl("$ / unit") + x,
+			"Calories / $": lambda x: '=' +
+				"(" + hl("Serving Calories") + x + "/" + hl("Serving Quantity")
+				+ x + ")/" + hl("$ / unit") + x
+		}
+
+		values  = []
+		for i in uRows:
+			row = []
+			for col in headers:
+				if col in formulas:
+					row.append(formulas[col](i))
+				else:
+					row.append(None)
+			values.append(row)
+		
+		body = {
+			"range":A1uRows,
+			"values":values,
+			"majorDimension":"ROWS"
+		}
+
+		# Execute request
+		self.sheet.values().update(
+			spreadsheetId=self.sheetId,
+			range=A1uRows,
+			body=body,
+			valueInputOption="USER_ENTERED"
+		).execute()
