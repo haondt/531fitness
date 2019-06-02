@@ -78,9 +78,16 @@ class Parser:
 		result['Food'] = name
 
 		# Extract product quantity
-		qty = soup.find('span', attrs={'class':'product-name-qty'})
-		qty = qty.text
-
+		qty = None
+		try:
+			# try to pull clean quantity
+			qty = soup.find('span', attrs={'class':'product-name-qty'})
+			qty = qty.text
+		except:
+			# Look for average weight
+			qty = soup.find('div', attrs={'class':'avg-weight'})
+			qty = re.findall('[0-9\.]+ [A-Za-z]+', qty.text)[0]
+			
 		# Extract numeric quantity
 		numQty = re.findall('[0-9\.]+', qty)[0]
 

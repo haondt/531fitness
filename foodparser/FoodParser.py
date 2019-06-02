@@ -24,47 +24,16 @@ def main():
 	tokenPath = 'secret/token.pickle'
 	credPath = 'secret/credentials.json'
 	
-	print("Building sheets controller...")
-	# Build sheetsController
-	sheet = SheetsController(tokenPath, credPath, sheetId)
 
 
-	# Build list of headers
-	headers = [
-		'Food',
-		'MFP Name',
-		'Verified',
-		'Link',
-		'Unit',
-		'Buying Quantity',
-		'Buying Cost',
-		'Serving Quantity',
-		'$ / unit',
-		'Serving Calories',
-		'Serving Fat',
-		'Serving Carbs',
-		'Serving Protein',
-		'g Protein / Calorie',
-		'g Protein / $',
-		'Protein Score',
-		'Normalized Protein Score',
-		'g Carbs / $',
-		'g Fat / $',
-		'Calories / $'
-	]
-
-	# Clear out sheet
-	sheet.clearSheet()
 
 
-	# Fill in headers
-	sheet.makeHeaders(headers)
 
-
+	
 	# Build superstore parser
 	print("Building SuperStoreParser...")
 	ssp = ssParser()
-	
+
 	caching = True
 	debugging = True
 	data = []
@@ -100,8 +69,42 @@ def main():
 				print("Error in parsing data")
 				print("URL:", url)
 
+	print("Building sheets controller...")
+	# Build sheetsController
+	sheet = SheetsController(tokenPath, credPath, sheetId)
+
+	# Build list of headers
+	headers = [
+		'Food',
+		'MFP Name',
+		'Verified',
+		'Link',
+		'Unit',
+		'Buying Quantity',
+		'Buying Cost',
+		'Serving Quantity',
+		'$ / unit',
+		'Serving Calories',
+		'Serving Fat',
+		'Serving Carbs',
+		'Serving Protein',
+		'g Protein / Calorie',
+		'g Protein / $',
+		'Protein Score',
+		'Normalized Protein Score',
+		'g Carbs / $',
+		'g Fat / $',
+		'Calories / $'
+	]
+
+	# Clear out sheet
+	sheet.clearSheet()
+
+
+	# Fill in headers
+	sheet.makeHeaders(headers)
+
 	print('Writing to sheets...')
-	
 	# Insert items
 	sheet.insertFoods(data)
 
