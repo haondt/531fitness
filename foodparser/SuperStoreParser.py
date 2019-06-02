@@ -131,9 +131,17 @@ class Parser:
 		assert(cost != None)
 		result['Buying Cost'] = cost
 
+		# Check if nutrition facts in page
+		hasfacts = soup.find_all('div', attrs={'id':'nutrition_facts'})
+		hasfacts = len(hasfacts) > 0
+
+		# nothing else to add
+		if not hasfacts:
+			return result
+
+
 		# Extract summary data
 		summary = soup.find_all('div', attrs={'class':'nutrition-summary'})
-		summary = summary
 
 		# Filter out non-tag contents
 		summary = [[j for j in i.contents

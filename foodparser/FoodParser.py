@@ -68,6 +68,8 @@ def main():
 				#print("Error in parsing data (" + url[35:85] + "...)")
 				print("Error in parsing data")
 				print("URL:", url)
+	
+	ssp.closeWindow()
 
 	print("Building sheets controller...")
 	# Build sheetsController

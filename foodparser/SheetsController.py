@@ -138,6 +138,7 @@ class SheetsController:
 		for i in range(int(uRows[0]),int(uRows[1])+1):
 			row = []
 			for col in headers:
+				forms = None
 				if col in formulas:
 					row.append(formulas[col](str(i)))
 				else:
