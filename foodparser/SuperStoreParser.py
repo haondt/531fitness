@@ -85,8 +85,17 @@ class Parser:
 			qty = qty.text
 		except:
 			# Look for average weight
-			qty = soup.find('div', attrs={'class':'avg-weight'})
-			qty = re.findall('[0-9\.]+ [A-Za-z]+', qty.text)[0]
+			try:
+				qty = soup.find('div', attrs={'class':'avg-weight'})
+				qty = re.findall('[0-9\.]+ *[A-Za-z]+', qty.text)[0]
+			except:
+				# Look for other unit
+				try:
+					qty = soup.find('sup', attrs={'class':'old-price-unit'})
+					qty = qty.text
+				except:
+					qty = soup.find('sup', attrs={'class':'reg-price-unit'})
+					qty = qty.text
 			
 		# Extract numeric quantity
 		numQty = re.findall('[0-9\.]+', qty)[0]
