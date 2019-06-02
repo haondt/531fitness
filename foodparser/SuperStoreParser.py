@@ -15,14 +15,14 @@ class Parser:
 	def parse(self, text, url):
 		# Heat up the kitchen
 		soup = BeautifulSoup(text, features='lxml')
-		result = {'link':url}
+		result = {'Link':url}
 
 		# Extract product name
 		name = soup.find('h1',  attrs={'class':'product-name'})
 		name = ''.join([i for i in name.contents
 			if type(i) == bs4.element.NavigableString]).strip()
 
-		result['name'] = name
+		result['Food'] = name
 
 		# Extract product quantity
 		qty = soup.find('span', attrs={'class':'product-name-qty'})
@@ -30,16 +30,16 @@ class Parser:
 
 		# Extract numeric quantity
 		numQty = re.findall('[0-9]+', qty)[0]
-		result['Purchase quantity'] = float(numQty)
+		result['Buying Quantity'] = float(numQty)
 
 		# Extract unit
-		result['unit'] = re.findall('[A-Za-z]+', qty)[-1]
+		result['Unit'] = re.findall('[A-Za-z]+', qty)[-1]
 		result['alternate unit'] = soup.find('sup', attrs={'class':'reg-price-unit'}).text
 
 		# Extract cost
 		cost = soup.find('span', attrs={'class':'reg-price-text'}).text
 		cost = re.search('[0-9\.]+', cost)[0]
-		result['cost'] = cost
+		result['Buying Cost'] = cost
 
 		# Extract summary data
 		summary = soup.find_all('div', attrs={'class':'nutrition-summary'})
@@ -66,8 +66,8 @@ class Parser:
 		servingSizeNum = float(servingSizeNum)
 		# extract unit
 		servingSizeUnit = re.findall('[A-Za-z]+', servingSize)[-1]
-		result['serving size'] = servingSizeNum
-		result['serving size unit'] = servingSizeUnit
+		result['Serving Quantity'] = servingSizeNum
+		result['serving unit'] = servingSizeUnit
 
 
 		# find calories per serving
@@ -76,7 +76,7 @@ class Parser:
 		# extract value
 		calories = re.findall('[0-9]+', calories)[0]
 		calories = float(calories)
-		result['calories'] = calories
+		result['Serving Calories'] = calories
 		
 		# Extract other nutritional data
 
@@ -99,15 +99,19 @@ class Parser:
 			# find value
 			value = re.findall('[0-9]+', text)[0]
 			value = float(value)
+
 			# find unit
 			unit = re.findall('[A-Za-z]+', text)[-1]
 
 			# insert into dict
-			nutDict[label] = (value, unit)
+			if unit == 'mg':
+				unit = 'g'
+				value = value / 1000
+			nutDict[label] = value
 
 		# Extract only the stuff we care about
-		result['protein'] = nutDict['Protein']
-		result['carbohydrates'] = nutDict['Total Carbohydrate']
-		result['fat'] = nutDict['Total Fat']
+		result['Serving Protein'] = nutDict['Protein']
+		result['Serving Carbs'] = nutDict['Total Carbohydrate']
+		result['Serving Fat'] = nutDict['Total Fat']
 
 		return result

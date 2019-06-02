@@ -1,3 +1,4 @@
+import hashlib
 import os.path
 import pickle
 from SuperStoreParser import Parser as ssParser
@@ -10,7 +11,8 @@ def main():
 		sheetId = sheet.read().strip()
 	tokenPath = 'secret/token.pickle'
 	credPath = 'secret/credentials.json'
-
+	
+	print("Building sheets controller...")
 	# Build sheetsController
 	sheet = SheetsController(tokenPath, credPath, sheetId)
 
@@ -41,27 +43,46 @@ def main():
 
 
 	# Fill in headers
-	sheet.makeHeaders(headers)
+	# sheet.makeHeaders(headers)
 
 
 	# Build superstore parser
-	url = 'https://www.realcanadiansuperstore.ca/Food/Bakery/Packaged-Breads/White%2C-Wheat-%26-Grain/Old-Mill-100%25-Whole-Wheat-Bread/p/20801296_EA'
+	urls = ['https://www.realcanadiansuperstore.ca/Food/Bakery/Packaged-Breads/White%2C-Wheat-%26-Grain/Old-Mill-100%25-Whole-Wheat-Bread/p/20801296_EA',
+	'https://www.realcanadiansuperstore.ca/Food/Meal-Kits-%26-Deli/Ready-Meals-%26-Sides/Salads/Greek-Feta-Dressing%2C-Pouch/p/20597966_EA?isPDPFlow=Y']
+
 	cachePath = 'cache.pickle'
 	
+	print("Building SuperStoreParser...")
 	ssp = ssParser()
-	html = None
-
-	if(not os.path.exists(cachePath)):
-		html = ssp.gethtml(url)
-		with open(cachePath, 'wb') as cache:
-			pickle.dump(html, cache)
-	else:
-		with open(cachePath, 'rb') as cache:
-			html = pickle.load(cache)
 	
-	data = ssp.parse(html, url)
-	for key in data:
-		print(key,':', data[key])
+	caching = True
+	data = []
+	
+	for i in range(len(urls)):
+		print('yoinking page and parsing data...(' + str(i+1) + '/'
+			+ str(len(urls)) + ')')
+
+		url = urls[i]
+		html = None
+
+		if caching:
+			cachePath = hashlib.md5(url.encode()).hexdigest()
+			if(not os.path.exists(cachePath)):
+				html = ssp.gethtml(urls[0])
+				with open(cachePath, 'wb') as cache:
+					pickle.dump(html, cache)
+			else:
+				with open(cachePath, 'rb') as cache:
+					html = pickle.load(cache)
+		else:
+			html = ssp.gethtml(url)
+
+		data.append(ssp.parse(html,url))
+
+	print('Writing to sheets...')
+	
+	# Insert items
+	sheet.insertFoods(data)
 
 
 if __name__ == '__main__':
