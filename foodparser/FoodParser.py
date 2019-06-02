@@ -1,9 +1,21 @@
 import hashlib
 import os.path
+import sys
 import pickle
 from SuperStoreParser import Parser as ssParser
 from SheetsController import SheetsController
 def main():
+	if (len(sys.argv) != 2):
+		print("usage: python3 FoodParser.py inputfile.txt")
+		return
+	if (not os.path.exists(sys.argv[1])):
+		print("Could not find file \"" + sys.argv[1] + "\"")
+		return
+
+	
+	urls = []
+	with open(sys.argv[1]) as urlFile:
+		urls = [i.strip() for i in urlFile.readlines()]
 
 	# Set up configuration file paths
 	sheetId = ""
@@ -47,11 +59,6 @@ def main():
 
 
 	# Build superstore parser
-	urls = ['https://www.realcanadiansuperstore.ca/Food/Bakery/Packaged-Breads/White%2C-Wheat-%26-Grain/Old-Mill-100%25-Whole-Wheat-Bread/p/20801296_EA',
-	'https://www.realcanadiansuperstore.ca/Food/Meal-Kits-%26-Deli/Ready-Meals-%26-Sides/Salads/Greek-Feta-Dressing%2C-Pouch/p/20597966_EA?isPDPFlow=Y']
-
-	cachePath = 'cache.pickle'
-	
 	print("Building SuperStoreParser...")
 	ssp = ssParser()
 	
@@ -78,8 +85,12 @@ def main():
 					html = pickle.load(cache)
 		else:
 			html = ssp.gethtml(url)
-
-		data.append(ssp.parse(html,url))
+		try:
+			data.append(ssp.parse(html,url))
+		except:
+			#print("Error in parsing data (" + url[35:85] + "...)")
+			print("Error in parsing data")
+			print("URL:", url)
 
 	print('Writing to sheets...')
 	

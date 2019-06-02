@@ -98,6 +98,7 @@ class SheetsController:
 			re.findall('[0-9]+', uRows[1])[0])
 		A1uRows = sheetRange + "!A"+  uRows[0] + ":" + chr(ord('A')+len(headers)) + uRows[1]
 
+
 		# Go back and add formulas
 		# function to convert a header title to a letter
 		hl = lambda x: chr(headers.index(x) + ord('A'))
@@ -125,7 +126,7 @@ class SheetsController:
 		}
 
 		values  = []
-		for i in uRows:
+		for i in range(uRows[0],uRows[1]+1):
 			row = []
 			for col in headers:
 				if col in formulas:
