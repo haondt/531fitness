@@ -66,6 +66,7 @@ fastlane/readme.md
 
 # Configuration/generated files
 */secret/*
+*/cache/*
 __pycache__/
 
 # vim temp files

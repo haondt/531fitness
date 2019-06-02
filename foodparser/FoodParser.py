@@ -66,9 +66,11 @@ def main():
 		html = None
 
 		if caching:
-			cachePath = hashlib.md5(url.encode()).hexdigest()
+			cachePath = 'cache/'
+			cachePath += hashlib.md5(url.encode()).hexdigest()
+			cachePath += '.pickle'
 			if(not os.path.exists(cachePath)):
-				html = ssp.gethtml(urls[0])
+				html = ssp.gethtml(url)
 				with open(cachePath, 'wb') as cache:
 					pickle.dump(html, cache)
 			else:
