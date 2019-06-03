@@ -24,3 +24,26 @@ Also set up as a much cleaner OO style program.
   * Sheet Id can be located by url: https://docs.google.com/spreadsheets/d/[sheetId]/
   * Sheet must contain a sheet named "Parameters" with the appropriate formate
 * Running script will generate token.pickle, after prompting the user to authenticate in a browser.
+
+# Food Parser
+Framework for pulling nutrition data from grocery sites.
+Requires same setup as GZCLP Sheets.
+
+Setup:
+
+Install selenium
+```
+pip3 install selenium
+```
+Install Google Client library
+```
+pip3 install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+```
+Install BeautifulSoup
+```
+pip3 install bs4
+```
+Install lxml
+```
+pip3 install lxml
+```
