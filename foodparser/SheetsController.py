@@ -61,6 +61,25 @@ class SheetsController:
 			spreadsheetId=self.sheetId,
 			range=sheetRange).execute()
 		
+	def getUrls(self, sheetRange='data'):
+		# Get headers
+		result = self.sheet.values().get(
+			spreadsheetId=self.sheetId,
+			range=sheetRange+'!1:1').execute()
+		headers = result.get('values',[])[0]
+		
+		# get column letter for link
+		col = chr(headers.index('Link') + ord('A'))
+		newSheetRange = sheetRange+'!'+col+'2:'+col
+
+		# get url list
+		result = self.sheet.values().get(
+			spreadsheetId=self.sheetId,
+			range=newSheetRange).execute()
+		urls = result.get('values',[])
+		# fix weird formatting
+		urls = [i[0] for i in urls] 
+		return urls
 
 	def insertFoods(self, foods, sheetRange='data'):
 		# Get Columns

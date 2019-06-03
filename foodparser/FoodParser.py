@@ -13,9 +13,6 @@ def main():
 		return
 
 	
-	urls = []
-	with open(sys.argv[1]) as urlFile:
-		urls = [i.strip() for i in urlFile.readlines()]
 
 	# Set up configuration file paths
 	sheetId = ""
@@ -25,11 +22,55 @@ def main():
 	credPath = 'secret/credentials.json'
 	
 
+	print("Building sheets controller...")
+	# Build sheetsController
+	sheet = SheetsController(tokenPath, credPath, sheetId)
+
+	# Build list of headers
+	headers = [
+		'Food',
+		'MFP Name',
+		'Verified',
+		'Link',
+		'Unit',
+		'Buying Quantity',
+		'Buying Cost',
+		'Serving Quantity',
+		'$ / unit',
+		'Serving Calories',
+		'Serving Fat',
+		'Serving Carbs',
+		'Serving Protein',
+		'g Protein / Calorie',
+		'g Protein / $',
+		'Protein Score',
+		'Normalized Protein Score',
+		'g Carbs / $',
+		'g Fat / $',
+		'Calories / $'
+	]
+
+	# Clear out sheet
+	# sheet.clearSheet()
 
 
-
+	# Fill in headers
+	# sheet.makeHeaders(headers)
 
 	
+	# Get links already in table
+	print('Getting already populated urls...')
+	doneUrls = sheet.getUrls()
+
+	print('Getting urls from file...')
+	urls = []
+	with open(sys.argv[1]) as urlFile:
+		urls = [i.strip() for i in urlFile.readlines()]
+
+	print('Filtering out already populated urls...')
+	urls = [i for i in urls if i not in doneUrls]
+	print(str(len(urls)) + " new urls.")
+
 	# Build superstore parser
 	print("Building SuperStoreParser...")
 	ssp = ssParser()
@@ -87,40 +128,6 @@ def main():
 
 
 
-	print("Building sheets controller...")
-	# Build sheetsController
-	sheet = SheetsController(tokenPath, credPath, sheetId)
-
-	# Build list of headers
-	headers = [
-		'Food',
-		'MFP Name',
-		'Verified',
-		'Link',
-		'Unit',
-		'Buying Quantity',
-		'Buying Cost',
-		'Serving Quantity',
-		'$ / unit',
-		'Serving Calories',
-		'Serving Fat',
-		'Serving Carbs',
-		'Serving Protein',
-		'g Protein / Calorie',
-		'g Protein / $',
-		'Protein Score',
-		'Normalized Protein Score',
-		'g Carbs / $',
-		'g Fat / $',
-		'Calories / $'
-	]
-
-	# Clear out sheet
-	sheet.clearSheet()
-
-
-	# Fill in headers
-	sheet.makeHeaders(headers)
 
 	print('Writing to sheets...')
 	# Insert items
