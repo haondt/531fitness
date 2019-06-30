@@ -4,6 +4,7 @@ import sys
 import pickle
 from SuperStoreParser import Parser as ssParser
 from SheetsController import SheetsController
+
 def main():
 	if (len(sys.argv) != 2):
 		print("usage: python3 FoodParser.py inputfile.txt")
@@ -78,6 +79,7 @@ def main():
 	caching = True
 	debugging = True
 	data = []
+	print(len(urls))
 	
 	for i in range(len(urls)):
 		print('yoinking page...(' + str(i+1) + '/'

@@ -61,6 +61,9 @@ class Parser:
 		elif unit == 'kg':
 			unit = 'g'
 			value = value * 1000
+		elif unit =='lb':
+			unit = 'g'
+			value = value * (1000/2.2)
 
 		return value, unit
 

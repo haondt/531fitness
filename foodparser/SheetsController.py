@@ -77,8 +77,9 @@ class SheetsController:
 			spreadsheetId=self.sheetId,
 			range=newSheetRange).execute()
 		urls = result.get('values',[])
+		print(urls)
 		# fix weird formatting
-		urls = [i[0] for i in urls] 
+		urls = [i[0] for i in urls if len(i) > 0]
 		return urls
 
 	def insertFoods(self, foods, sheetRange='data'):
@@ -118,9 +119,16 @@ class SheetsController:
 
 		# Get updated row range
 		uRows = result["updates"]["updatedRange"]
+
 		uRows = uRows.split('!')[1].split(':')
-		uRows = (re.findall('[0-9]+', uRows[0])[0],
-			re.findall('[0-9]+', uRows[1])[0])
+
+		if len(uRows) == 1:
+			uRows = re.findall('[0-9]+', uRows[0])[0]
+			uRows = [uRows, uRows]
+		else:
+			uRows = (re.findall('[0-9]+', uRows[0])[0],
+				re.findall('[0-9]+', uRows[1])[0])
+
 		A1uRows = sheetRange + "!A"+  uRows[0] + ":" + chr(ord('A')+len(headers)) + uRows[1]
 
 
