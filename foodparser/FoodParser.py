@@ -6,6 +6,7 @@ from SuperStoreParser import Parser as ssParser
 from SheetsController import SheetsController
 
 def main():
+		# Ensure usage is correct
 	if (len(sys.argv) != 2):
 		print("usage: python3 FoodParser.py inputfile.txt")
 		return
