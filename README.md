@@ -47,3 +47,46 @@ Install lxml
 ```
 pip3 install lxml
 ```
+
+# Fitsuite (project)
+* `manage.py` - django tool for managing site
+* Running on django test server - `python3 manage.py runserver 0.0.0.0:8000`
+* mealplanner - (serverip)/mealplanner
+* Updating db after changing models.py
+	* `python3 manage.py makemigrations mealplanner`
+	* `python3 manage.py sqlmigrate mealplanner [migration number]` - preview
+	* `python3 manage.py migrate`
+
+# Fitsuite (app)
+
+* `fitsuite/fitsuite`
+* `__init__`.py - ?
+* `settings.py`
+	* `ALLOWED_HOSTS` - ip addresses allowed to access site
+	* `ROOT_URLCONF` - root url folder (?)
+	* `DATABASES` - database setup -> currently setup to connect to
+	foodparser@192.168.1.77 and connect to the postgresql db as
+	user postgres password postgres.
+	* `INSTALLED_APPS` - applications to include in project
+		* Includes mealplanner.apps.MealPlannerConfig as reference to
+		mealplanner/apps.py -> MealPlannerConfig
+		
+* `urls.py` url paths to access different parts of site
+* `wsgi.py` - ?
+
+# mealplanner (app)
+* `admin.py` - ?
+* `apps.py` - ?
+* `__init__.py` - ?
+* `migrations/` - ?
+* `models.py` - data structure definitions
+	* **FoodItem** - food items, recepies and single items alike
+	* **RecepieIngredient** - mapping between food items and food items that are
+	also recepies
+* `tests.py` - testcases (?)
+* `urls.py` - ?
+* `views.py` - ?
+
+
+
+* Following the tutorial at https://docs.djangoproject.com/en/2.2/intro/tutorial01/
