@@ -20,9 +20,9 @@ class FoodItem(models.Model):
 
 
 # Define recipie ingredient table
-class RecepieIngredient(models.Model):
+class RecipeIngredient(models.Model):
 	recepie = models.ForeignKey('FoodItem', on_delete=models.CASCADE,
-		related_name='ingredient_recepie',)
+		related_name='ingredient_recipe',)
 	ingredient = models.ForeignKey('FoodItem', on_delete=models.CASCADE,
 		related_name='ingredient_ingredient',)
 

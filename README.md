@@ -70,8 +70,9 @@ pip3 install lxml
 	* `INSTALLED_APPS` - applications to include in project
 		* Includes mealplanner.apps.MealPlannerConfig as reference to
 		mealplanner/apps.py -> MealPlannerConfig
-		
+
 * `urls.py` url paths to access different parts of site
+	* `/mealplanner` - mealplanner index
 * `wsgi.py` - ?
 
 # mealplanner (app)
@@ -84,7 +85,9 @@ pip3 install lxml
 	* **RecepieIngredient** - mapping between food items and food items that are
 	also recepies
 * `tests.py` - testcases (?)
-* `urls.py` - ?
+* `urls.py` - map urls to views
+	* `/` - index (homepage)
+	* `fooditems/[0-9]+/` - page for food item 
 * `views.py` - ?
 
 

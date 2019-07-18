@@ -80,7 +80,7 @@ DATABASES = {
         'NAME': 'foodparser',
 		'USER': 'postgres',
 		'PASSWORD': 'postgres',
-		'HOST': '192.168.1.77'
+		'HOST': '192.168.1.72'
     }
 }
 
